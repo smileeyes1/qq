@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>لعبة القسمة - وزّع بعدل</title>
+  <title>لعبة القسمة - بطل العدل</title>
   <style>
     body {
       font-family: "Tahoma", sans-serif;
@@ -28,6 +28,7 @@
     .feedback { font-size: 22px; margin: 15px 0; }
     .stars { font-size: 28px; color: gold; }
     .medal { font-size: 26px; color: #ff5722; margin-top: 10px; }
+    .final { font-size: 30px; color: #4caf50; margin-top: 20px; }
     @media (max-width: 480px) {
       .question { font-size: 20px; }
       input { width: 80px; }
@@ -37,7 +38,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>🎮 لعبة القسمة - وزّع بعدل</h1>
+    <h1>🎮 لعبة القسمة - بطل العدل</h1>
     <div id="level">المستوى: سهل</div>
     <div id="timer">⏱ الوقت: ٣٠ ثانية</div>
     <div class="question" id="question"></div>
@@ -47,8 +48,10 @@
     <div class="feedback" id="feedback"></div>
     <div class="stars" id="stars">⭐ النجوم: ٠</div>
     <div class="medal" id="medal"></div>
+    <div class="final" id="final"></div>
     <audio id="successSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
     <audio id="failSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+    <audio id="clapSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
   </div>
 
   <script>
@@ -87,8 +90,12 @@
           document.getElementById("medal").innerText = "🏅 وسام العدل!";
           levelUp();
         }
+        if (stars >= 15) {
+          document.getElementById("final").innerText = "🎉 أنت بطل القسمة!";
+          document.getElementById("clapSound").play();
+        }
       } else {
-        document.getElementById("feedback").innerText = "🙁 خطأ، القسمة تعني العدل!";
+        document.getElementById("feedback").innerText = "🙁 خطأ بسيط، أنت قادر على المحاولة من جديد!";
         document.getElementById("failSound").play();
       }
       newQuestion();

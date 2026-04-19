@@ -2,137 +2,113 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>لعبة القسمة - الصف الثاني</title>
+  <title>لعبة القسمة - وزّع بعدل</title>
   <style>
     body {
       font-family: "Tahoma", sans-serif;
-      background: #f0f8ff;
       text-align: center;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
       padding: 20px;
     }
     h1 {
-      color: #2e8b57;
-    }
-    .story {
-      font-size: 20px;
-      margin: 15px;
-      color: #444;
+      color: #00796b;
     }
     .question {
       font-size: 24px;
-      margin: 20px;
-      font-weight: bold;
+      margin: 20px 0;
     }
-    .options button {
-      background: #87ceeb;
-      border: none;
-      padding: 10px 20px;
-      margin: 10px;
+    input {
+      font-size: 20px;
+      padding: 5px;
+      width: 100px;
+      text-align: center;
+    }
+    button {
       font-size: 18px;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-    .options button:hover {
-      background: #4682b4;
-      color: #fff;
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 5px;
     }
     .feedback {
-      font-size: 20px;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    .score {
       font-size: 22px;
-      margin-top: 20px;
-      color: #2e8b57;
+      margin: 15px 0;
     }
-    .level-select button {
-      background: #ffa500;
-      border: none;
-      padding: 10px 20px;
-      margin: 10px;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 8px;
+    .stars {
+      font-size: 28px;
+      color: gold;
+    }
+    @media (max-width: 480px) {
+      .question { font-size: 20px; }
+      input { width: 80px; }
+      button { font-size: 16px; }
     }
   </style>
 </head>
 <body>
-  <h1>⚖️ لعبة القسمة للصف الثاني</h1>
-  <div class="level-select">
-    <p>اختر المستوى:</p>
-    <button onclick="startGame('easy')">سهل 🍎</button>
-    <button onclick="startGame('medium')">متوسط 🍞</button>
-    <button onclick="startGame('hard')">صعب 🫒</button>
+  <div class="container">
+    <h1>🎮 لعبة القسمة - وزّع بعدل</h1>
+    <div id="timer">⏱ الوقت: 30 ثانية</div>
+    <div class="question" id="question"></div>
+    <input type="number" id="answer" placeholder="؟">
+    <br>
+    <button onclick="checkAnswer()">تحقق</button>
+    <div class="feedback" id="feedback"></div>
+    <div class="stars" id="stars">⭐ النجوم: 0</div>
   </div>
-  <div class="story" id="story"></div>
-  <div class="question" id="question"></div>
-  <div class="options" id="options"></div>
-  <div class="feedback" id="feedback"></div>
-  <div class="score" id="score">النقاط: 0 ⭐</div>
 
   <script>
-    const levels = {
-      easy: [
-        { story: "أحمد وزّع 6 تفاحات 🍎 على 2 أطفال.", q: "6 ÷ 2 = ?", correct: 3, options: [2,3,4] },
-        { story: "الأم وزّعت 8 خبزات 🍞 على 4 أولاد.", q: "8 ÷ 4 = ?", correct: 2, options: [2,3,4] }
-      ],
-      medium: [
-        { story: "المعلمة أعطت 15 قلمًا ✏️ لـ 3 مجموعات.", q: "15 ÷ 3 = ?", correct: 5, options: [4,5,6] },
-        { story: "الأطفال جمعوا 12 دجاجة 🐔 ووضعوها في 6 أقنان.", q: "12 ÷ 6 = ?", correct: 2, options: [2,3,4] }
-      ],
-      hard: [
-        { story: "في الحقل، جمع الأطفال 21 زيتونة 🫒 ووضعوها في 7 سلال.", q: "21 ÷ 7 = ?", correct: 3, options: [2,3,4] },
-        { story: "وزّع الفلاح 24 سنبلة قمح 🌾 على 6 صفوف.", q: "24 ÷ 6 = ?", correct: 4, options: [3,4,5] }
-      ]
-    };
+    let num1, num2, correctAnswer;
+    let stars = 0;
+    let timeLeft = 30;
+    let timer;
 
-    let current = 0;
-    let score = 0;
-    let questions = [];
-
-    function startGame(level) {
-      questions = levels[level];
-      current = 0;
-      score = 0;
-      document.getElementById("score").innerText = "النقاط: 0 ⭐";
-      loadQuestion();
-    }
-
-    function loadQuestion() {
-      const q = questions[current];
-      document.getElementById("story").innerText = q.story;
-      document.getElementById("question").innerText = q.q;
-      const optionsDiv = document.getElementById("options");
-      optionsDiv.innerHTML = "";
-      q.options.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.innerText = opt;
-        btn.onclick = () => checkAnswer(opt);
-        optionsDiv.appendChild(btn);
-      });
+    function newQuestion() {
+      num2 = Math.floor(Math.random() * 5) + 2; // المقسوم عليه بين 2 و6
+      correctAnswer = Math.floor(Math.random() * 5) + 2; // الناتج بين 2 و6
+      num1 = num2 * correctAnswer;
+      document.getElementById("question").innerText = `كم يساوي ${num1} ÷ ${num2} ؟`;
+      document.getElementById("answer").value = "";
       document.getElementById("feedback").innerText = "";
+      resetTimer();
     }
 
-    function checkAnswer(answer) {
-      const q = questions[current];
-      let audio = new Audio();
-      if (answer === q.correct) {
-        document.getElementById("feedback").innerText = "🌟 رائع! وزّعت الأشياء بعدل";
-        score += 10;
-        audio.src = "https://www.soundjay.com/buttons/sounds/button-3.mp3";
+    function checkAnswer() {
+      let userAnswer = parseInt(document.getElementById("answer").value);
+      if (userAnswer === correctAnswer) {
+        document.getElementById("feedback").innerText = "🙂 صحيح! أحسنت";
+        stars++;
+        document.getElementById("stars").innerText = `⭐ النجوم: ${stars}`;
       } else {
-        document.getElementById("feedback").innerText = "❌ حاول مرة أخرى، القسمة تعني العدل";
-        score -= 5;
-        audio.src = "https://www.soundjay.com/buttons/sounds/button-10.mp3";
+        document.getElementById("feedback").innerText = "🙁 خطأ، القسمة تعني العدل!";
       }
-      audio.play();
-      document.getElementById("score").innerText = "النقاط: " + score + " ⭐";
-      setTimeout(() => {
-        current = (current + 1) % questions.length;
-        loadQuestion();
-      }, 2000);
+      newQuestion();
     }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timeLeft = 30;
+      document.getElementById("timer").innerText = `⏱ الوقت: ${timeLeft} ثانية`;
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = `⏱ الوقت: ${timeLeft} ثانية`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          document.getElementById("feedback").innerText = "⏰ انتهى الوقت! حاول مرة أخرى.";
+          newQuestion();
+        }
+      }, 1000);
+    }
+
+    newQuestion();
   </script>
 </body>
 </html>

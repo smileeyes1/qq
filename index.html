@@ -16,36 +16,18 @@
       margin: auto;
       padding: 20px;
     }
-    h1 {
-      color: #00796b;
-    }
-    .question {
-      font-size: 24px;
-      margin: 20px 0;
-    }
+    h1 { color: #00796b; }
+    .question { font-size: 24px; margin: 20px 0; }
     input {
-      font-size: 20px;
-      padding: 5px;
-      width: 100px;
-      text-align: center;
+      font-size: 20px; padding: 5px; width: 100px; text-align: center;
     }
     button {
-      font-size: 18px;
-      padding: 10px 20px;
-      margin-top: 10px;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 5px;
+      font-size: 18px; padding: 10px 20px; margin-top: 10px;
+      background-color: #00796b; color: white; border: none; border-radius: 5px;
     }
-    .feedback {
-      font-size: 22px;
-      margin: 15px 0;
-    }
-    .stars {
-      font-size: 28px;
-      color: gold;
-    }
+    .feedback { font-size: 22px; margin: 15px 0; }
+    .stars { font-size: 28px; color: gold; }
+    .medal { font-size: 26px; color: #ff5722; margin-top: 10px; }
     @media (max-width: 480px) {
       .question { font-size: 20px; }
       input { width: 80px; }
@@ -56,13 +38,17 @@
 <body>
   <div class="container">
     <h1>🎮 لعبة القسمة - وزّع بعدل</h1>
-    <div id="timer">⏱ الوقت: 30 ثانية</div>
+    <div id="level">المستوى: سهل</div>
+    <div id="timer">⏱ الوقت: ٣٠ ثانية</div>
     <div class="question" id="question"></div>
     <input type="number" id="answer" placeholder="؟">
     <br>
     <button onclick="checkAnswer()">تحقق</button>
     <div class="feedback" id="feedback"></div>
-    <div class="stars" id="stars">⭐ النجوم: 0</div>
+    <div class="stars" id="stars">⭐ النجوم: ٠</div>
+    <div class="medal" id="medal"></div>
+    <audio id="successSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+    <audio id="failSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
   </div>
 
   <script>
@@ -70,12 +56,21 @@
     let stars = 0;
     let timeLeft = 30;
     let timer;
+    let level = 1; // 1=سهل، 2=متوسط، 3=صعب
+
+    function toEasternArabic(num) {
+      return num.toString().replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+    }
 
     function newQuestion() {
-      num2 = Math.floor(Math.random() * 5) + 2; // المقسوم عليه بين 2 و6
-      correctAnswer = Math.floor(Math.random() * 5) + 2; // الناتج بين 2 و6
+      if (level === 1) num2 = Math.floor(Math.random() * 2) + 2;
+      else if (level === 2) num2 = Math.floor(Math.random() * 2) + 4;
+      else num2 = Math.floor(Math.random() * 2) + 6;
+
+      correctAnswer = Math.floor(Math.random() * 5) + 2;
       num1 = num2 * correctAnswer;
-      document.getElementById("question").innerText = `كم يساوي ${num1} ÷ ${num2} ؟`;
+      document.getElementById("question").innerText =
+        `كم يساوي ${toEasternArabic(num1)} ÷ ${toEasternArabic(num2)} ؟`;
       document.getElementById("answer").value = "";
       document.getElementById("feedback").innerText = "";
       resetTimer();
@@ -86,9 +81,15 @@
       if (userAnswer === correctAnswer) {
         document.getElementById("feedback").innerText = "🙂 صحيح! أحسنت";
         stars++;
-        document.getElementById("stars").innerText = `⭐ النجوم: ${stars}`;
+        document.getElementById("stars").innerText = `⭐ النجوم: ${toEasternArabic(stars)}`;
+        document.getElementById("successSound").play();
+        if (stars % 5 === 0) {
+          document.getElementById("medal").innerText = "🏅 وسام العدل!";
+          levelUp();
+        }
       } else {
         document.getElementById("feedback").innerText = "🙁 خطأ، القسمة تعني العدل!";
+        document.getElementById("failSound").play();
       }
       newQuestion();
     }
@@ -96,16 +97,24 @@
     function resetTimer() {
       clearInterval(timer);
       timeLeft = 30;
-      document.getElementById("timer").innerText = `⏱ الوقت: ${timeLeft} ثانية`;
+      document.getElementById("timer").innerText = `⏱ الوقت: ${toEasternArabic(timeLeft)} ثانية`;
       timer = setInterval(() => {
         timeLeft--;
-        document.getElementById("timer").innerText = `⏱ الوقت: ${timeLeft} ثانية`;
+        document.getElementById("timer").innerText = `⏱ الوقت: ${toEasternArabic(timeLeft)} ثانية`;
         if (timeLeft <= 0) {
           clearInterval(timer);
           document.getElementById("feedback").innerText = "⏰ انتهى الوقت! حاول مرة أخرى.";
           newQuestion();
         }
       }, 1000);
+    }
+
+    function levelUp() {
+      if (level < 3) {
+        level++;
+        let levelName = level === 2 ? "متوسط" : "صعب";
+        document.getElementById("level").innerText = `المستوى: ${levelName}`;
+      }
     }
 
     newQuestion();

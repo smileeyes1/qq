@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة القسمة - الصف الثاني</title>
+  <style>
+    body {
+      font-family: "Tahoma", sans-serif;
+      background: #f0f8ff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #2e8b57;
+    }
+    .story {
+      font-size: 20px;
+      margin: 15px;
+      color: #444;
+    }
+    .question {
+      font-size: 24px;
+      margin: 20px;
+      font-weight: bold;
+    }
+    .options button {
+      background: #87ceeb;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .options button:hover {
+      background: #4682b4;
+      color: #fff;
+    }
+    .feedback {
+      font-size: 20px;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    .score {
+      font-size: 22px;
+      margin-top: 20px;
+      color: #2e8b57;
+    }
+    .level-select button {
+      background: #ffa500;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚖️ لعبة القسمة للصف الثاني</h1>
+  <div class="level-select">
+    <p>اختر المستوى:</p>
+    <button onclick="startGame('easy')">سهل 🍎</button>
+    <button onclick="startGame('medium')">متوسط 🍞</button>
+    <button onclick="startGame('hard')">صعب 🫒</button>
+  </div>
+  <div class="story" id="story"></div>
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="score" id="score">النقاط: 0 ⭐</div>
+
+  <script>
+    const levels = {
+      easy: [
+        { story: "أحمد وزّع 6 تفاحات 🍎 على 2 أطفال.", q: "6 ÷ 2 = ?", correct: 3, options: [2,3,4] },
+        { story: "الأم وزّعت 8 خبزات 🍞 على 4 أولاد.", q: "8 ÷ 4 = ?", correct: 2, options: [2,3,4] }
+      ],
+      medium: [
+        { story: "المعلمة أعطت 15 قلمًا ✏️ لـ 3 مجموعات.", q: "15 ÷ 3 = ?", correct: 5, options: [4,5,6] },
+        { story: "الأطفال جمعوا 12 دجاجة 🐔 ووضعوها في 6 أقنان.", q: "12 ÷ 6 = ?", correct: 2, options: [2,3,4] }
+      ],
+      hard: [
+        { story: "في الحقل، جمع الأطفال 21 زيتونة 🫒 ووضعوها في 7 سلال.", q: "21 ÷ 7 = ?", correct: 3, options: [2,3,4] },
+        { story: "وزّع الفلاح 24 سنبلة قمح 🌾 على 6 صفوف.", q: "24 ÷ 6 = ?", correct: 4, options: [3,4,5] }
+      ]
+    };
+
+    let current = 0;
+    let score = 0;
+    let questions = [];
+
+    function startGame(level) {
+      questions = levels[level];
+      current = 0;
+      score = 0;
+      document.getElementById("score").innerText = "النقاط: 0 ⭐";
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const q = questions[current];
+      document.getElementById("story").innerText = q.story;
+      document.getElementById("question").innerText = q.q;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(opt);
+        optionsDiv.appendChild(btn);
+      });
+      document.getElementById("feedback").innerText = "";
+    }
+
+    function checkAnswer(answer) {
+      const q = questions[current];
+      let audio = new Audio();
+      if (answer === q.correct) {
+        document.getElementById("feedback").innerText = "🌟 رائع! وزّعت الأشياء بعدل";
+        score += 10;
+        audio.src = "https://www.soundjay.com/buttons/sounds/button-3.mp3";
+      } else {
+        document.getElementById("feedback").innerText = "❌ حاول مرة أخرى، القسمة تعني العدل";
+        score -= 5;
+        audio.src = "https://www.soundjay.com/buttons/sounds/button-10.mp3";
+      }
+      audio.play();
+      document.getElementById("score").innerText = "النقاط: " + score + " ⭐";
+      setTimeout(() => {
+        current = (current + 1) % questions.length;
+        loadQuestion();
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
